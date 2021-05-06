@@ -1,0 +1,16 @@
+{
+"companyName": "DefaultCompany",
+"productName": "Roll_A_Ball_with_Light_MPlayer",
+"productVersion": "0.1",
+"dataUrl": "RB_BuildWEBGL.data.unityweb",
+"wasmCodeUrl": "RB_BuildWEBGL.wasm.code.unityweb",
+"wasmFrameworkUrl": "RB_BuildWEBGL.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.4.16f1"
+}
