@@ -11,13 +11,14 @@ public class PlayerController : MonoBehaviour
 	public float jumpHeight;
 	public float playerNumber;
 	public Text countText;
+	public Text countText1;
 	public Button restart;
 	public Text winText;
 	public int numPickups;
 
 	private Rigidbody rb;
 	private int count;
-
+	private int count1;
 	void Start()
 	{
 		rb = GetComponent<Rigidbody>();
@@ -169,10 +170,17 @@ public class PlayerController : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
-		if (other.gameObject.CompareTag("Pick Up"))
+		if (other.gameObject.CompareTag("Pick Up")&&playerNumber==1)
 		{
 			other.gameObject.SetActive(false);
 			count++;
+			SetCountText();
+
+		}
+		if (other.gameObject.CompareTag("Pick Up") && playerNumber == 2)
+		{
+			other.gameObject.SetActive(false);
+			count1++;
 			SetCountText();
 
 		}
@@ -180,17 +188,26 @@ public class PlayerController : MonoBehaviour
 
 	void SetCountText()
 	{
+		if(playerNumber==1)
 		countText.text = "Count: " + count.ToString();
-		if (count >= numPickups)
+		if (playerNumber == 2)
+			countText1.text = "Count: " + count1.ToString();
+		if (count+count1 >= numPickups)
 		{
-			winText.text = "You win!";
+			winText.text = "The Game is over";
 			restart.gameObject.SetActive(true);
+			PauseGame();
 		}
 	}
 	public void OnRestarButtonClick()
 	{
 
 		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+		Debug.Log("Click Worked");
 
+	}
+	void PauseGame()
+	{
+		Time.timeScale = 0;
 	}
 }

@@ -31,7 +31,8 @@ public class NetworkServerUI : NetworkBehaviour
     static public bool player4Down;
     static public bool player4Left;
     static public bool player4Right;
-    
+
+    bool waitingForotherPlayers_State = true;
 
 
     [SyncVar]
@@ -47,14 +48,16 @@ public class NetworkServerUI : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        
-    NetworkServer.useWebSockets=true;
+        DontDestroyOnLoad(this.gameObject);
+
+        NetworkServer.useWebSockets=true;
         NetworkServer.Listen(9997);
         Debug.Log(NetworkServer.active);
         Debug.Log(NetworkServer.connections.Count);
         NetworkServer.RegisterHandler(888, ServerReceiveMessage);
         NetworkServer.RegisterHandler(885, ServerReceivePlayerMessage);
-
+        NetworkServer.RegisterHandler(555, ServerReceiveGamestate);
+        PauseGame();
     }
     private void ServerReceiveMessage(NetworkMessage message)
     {
@@ -100,7 +103,22 @@ public class NetworkServerUI : NetworkBehaviour
 
 
     }
-    private void ServerReceivePlayerMessage(NetworkMessage message)
+    void PauseGame()
+    {
+        Time.timeScale = 0;
+    }
+
+    void ResumeGame()
+    {
+        Time.timeScale = 1;
+    }
+    private void ServerReceiveGamestate(NetworkMessage message)
+    {
+        StringMessage msg = new StringMessage();
+        msg.value = waitingForotherPlayers_State.ToString();
+        NetworkServer.SendToAll(554, msg);
+    }
+        private void ServerReceivePlayerMessage(NetworkMessage message)
     {
         StringMessage msg = new StringMessage();
     msg.value = message.ReadMessage<StringMessage>().value;
@@ -169,49 +187,55 @@ if (player == 4)
     // Update is called once per frame
     void Update()
             {
-        if (player1Up)
+
+        if (waitingForotherPlayers_State)
         {
-            SendPlayerandDirection(1, "Up");
-            Debug.Log("Send 1Up");
-        }
-        if (player1Down)
-        {
-            SendPlayerandDirection(1, "Down");
-            Debug.Log("Send 1 Down");
-        }
-        if (player1Left)
-        {
-            SendPlayerandDirection(1, "Left");
-            //Debug.Log("Send");
-        }
-        if (player1Right)
-        {
-            SendPlayerandDirection(1, "Right");
-            //Debug.Log("Send");
-        }
-        if (player2Up)
-        {
-            SendPlayerandDirection(2, "Up");
-            //Debug.Log("Send");
-        }
-        if (player2Down)
-        {
-            SendPlayerandDirection(2, "Down");
-            //Debug.Log("Send");
-        }
-        if (player2Left)
-        {
-            SendPlayerandDirection(2, "Left");
-            //Debug.Log("Send");
-        }
-        if (player2Right)
-        {
-            SendPlayerandDirection(2, "Right");
-            //Debug.Log("Send");
+            if (player1Up)
+            {
+                SendPlayerandDirection(1, "Up");
+                Debug.Log("Send 1Up");
+            }
+            if (player1Down)
+            {
+                SendPlayerandDirection(1, "Down");
+                Debug.Log("Send 1 Down");
+            }
+            if (player1Left)
+            {
+                SendPlayerandDirection(1, "Left");
+                //Debug.Log("Send");
+            }
+            if (player1Right)
+            {
+                SendPlayerandDirection(1, "Right");
+                //Debug.Log("Send");
+            }
+            if (player2Up)
+            {
+                SendPlayerandDirection(2, "Up");
+                //Debug.Log("Send");
+            }
+            if (player2Down)
+            {
+                SendPlayerandDirection(2, "Down");
+                //Debug.Log("Send");
+            }
+            if (player2Left)
+            {
+                SendPlayerandDirection(2, "Left");
+                //Debug.Log("Send");
+            }
+            if (player2Right)
+            {
+                SendPlayerandDirection(2, "Right");
+                //Debug.Log("Send");
+            }
         }
         
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
+            waitingForotherPlayers_State = false;
+            ResumeGame();
             Debug.Log(NetworkServer.connections.Count);
             //SendPlayerAnzahl(NetworkServer.connections.Count);
             Debug.Log(direction);

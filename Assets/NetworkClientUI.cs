@@ -8,10 +8,13 @@ using UnityEngine.UI;
 public class NetworkClientUI : NetworkBehaviour
 {
     public Text countClients;
-    public Text iPAdress;
+    public Text connectionStatus;
+    public InputField iPAdress;
+    public GameObject connectButton;
+    public GameObject sorryToLate;
     string test;
     public GameObject BigButton;
-    public GameObject debbugField;
+    public Text debbugField;
     public GameObject toggleGroup;
     public GameObject UpButton;
     public GameObject DownButton;
@@ -35,20 +38,42 @@ public class NetworkClientUI : NetworkBehaviour
     static public bool player4Down;
     static public bool player4Left;
     static public bool player4Right;
+    public string stillWaiting = "true";
+    bool waitingForothterPlayers_State = true;
+    bool runthisOnce;
 
     static NetworkClient client;
     // Start is called before the first frame update
     void Start()
     {
+        iPAdress.text = "192.168.0.213";
         //playerz = "noch nix";
         client = new NetworkClient();
-        client.Connect("ws://192.168.0.213", 9997);
+        connectionStatus.text = "You are not connected to a Server, enter Server IP and click Connect";
         //client.Connect("192.168.0.213", 25000);
-        client.RegisterHandler(887, ClientReceiveMessage);
+        debbugField.text = "start";
+        
         
         
     }
-    private void ClientReceiveMessage(NetworkMessage message)
+    public void ButtonConnectToServer()
+    {
+        client.Connect("ws://"+iPAdress.text, 9997);
+        client.RegisterHandler(887, ClientReceiveMessage);
+        client.RegisterHandler(554, ClientReceiveGameState);
+        Debug.Log(iPAdress.text);
+       
+
+    }
+    private void ClientReceiveGameState(NetworkMessage message)
+    {
+        StringMessage msg = new StringMessage();
+        msg.value = message.ReadMessage<StringMessage>().value;
+        Debug.Log("Message:" + msg.value);
+        stillWaiting = msg.value.ToString();
+
+    }
+        private void ClientReceiveMessage(NetworkMessage message)
     {
         StringMessage msg = new StringMessage();
         msg.value = message.ReadMessage<StringMessage>().value;
@@ -102,6 +127,22 @@ public class NetworkClientUI : NetworkBehaviour
 
 
     }
+    static public void SendAskForGameState()
+    {
+        if (client.isConnected)
+        {
+            StringMessage msg = new StringMessage();
+            msg.value = "";
+            client.Send(555, msg);
+
+
+
+        }
+
+
+
+
+    }
     static public void SendPlayerInfo(string direction, float player)
     {
         if (client.isConnected)
@@ -122,58 +163,82 @@ public class NetworkClientUI : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("Achtung:"+playerAndDirection);
-
-
-
-
-
-        if (!player1Up && playernumber == 1)
+        debbugField.text = stillWaiting;
+        if(stillWaiting=="False")
         {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            UpButton.SetActive(true); }
-        
-        if (!player1Down && playernumber == 1)
-        {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            DownButton.SetActive(true);
+            sorryToLate.SetActive(true);
 
         }
-        if (!player1Left && playernumber == 1)
+        if (!runthisOnce)
+        {//Debug.Log("Achtung:"+playerAndDirection);
+            if (client.isConnected)
+            {
+                connectionStatus.text = "Yeah, you are connected to " + iPAdress.text;
+                connectButton.SetActive(false);
+                toggleGroup.SetActive(true);
+                runthisOnce = true;
+
+
+            }
+        }
+        if (!client.isConnected)
         {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            LeftButton.SetActive(true);
+            connectionStatus.text = "Could not find that Server!";
+
 
         }
-        if (!player1Right && playernumber == 1)
-        {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            RightButton.SetActive(true);
 
-        }
-        if (!player2Up && playernumber == 2)
+        if (waitingForothterPlayers_State)
         {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            UpButton.SetActive(true);
 
-        }
-        if (!player2Down && playernumber == 2)
-        {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            DownButton.SetActive(true);
+            if (!player1Up && playernumber == 1)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                UpButton.SetActive(true);
+            }
 
-        }
-        if (!player2Left && playernumber == 2)
-        {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            LeftButton.SetActive(true);
+            if (!player1Down && playernumber == 1)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                DownButton.SetActive(true);
 
-        }
-        if (!player2Right && playernumber == 2)
-        {
-            debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-            RightButton.SetActive(true);
+            }
+            if (!player1Left && playernumber == 1)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                LeftButton.SetActive(true);
 
+            }
+            if (!player1Right && playernumber == 1)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                RightButton.SetActive(true);
+
+            }
+            if (!player2Up && playernumber == 2)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                UpButton.SetActive(true);
+
+            }
+            if (!player2Down && playernumber == 2)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                DownButton.SetActive(true);
+
+            }
+            if (!player2Left && playernumber == 2)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                LeftButton.SetActive(true);
+
+            }
+            if (!player2Right && playernumber == 2)
+            {
+                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+                RightButton.SetActive(true);
+
+            }
         }
 
     }
@@ -184,9 +249,7 @@ public class NetworkClientUI : NetworkBehaviour
         
         BigButton.SetActive(true);
         toggleGroup.SetActive(false);
-        Debug.Log(iPAdress.text);
-        debbugField.SetActive(true);
-        test = iPAdress.text;
+        waitingForothterPlayers_State = false;
         
 
 
@@ -197,15 +260,34 @@ public class NetworkClientUI : NetworkBehaviour
         RightButton.SetActive(false);
         DownButton.SetActive(false);
         UpButton.SetActive(false);
+        SendAskForGameState();
 
 
     }
     public void OnToggleClick2()
-    { playernumber = 2; }
+    { playernumber = 2;
+        LeftButton.SetActive(false);
+        RightButton.SetActive(false);
+        DownButton.SetActive(false);
+        UpButton.SetActive(false);
+        SendAskForGameState();
+    }
     public void OnToggleClick3()
-    { playernumber = 3; }
+    { playernumber = 3;
+        LeftButton.SetActive(false);
+        RightButton.SetActive(false);
+        DownButton.SetActive(false);
+        UpButton.SetActive(false);
+        SendAskForGameState();
+    }
     public void OnToggleClick4()
-    { playernumber = 4; }
+    { playernumber = 4;
+        LeftButton.SetActive(false);
+        RightButton.SetActive(false);
+        DownButton.SetActive(false);
+        UpButton.SetActive(false);
+        SendAskForGameState();
+    }
 
     public void OnDownButtonClick()
     {
@@ -216,8 +298,9 @@ public class NetworkClientUI : NetworkBehaviour
         BigButton.SetActive(true);
         toggleGroup.SetActive(false);
         Debug.Log(iPAdress.text);
-        debbugField.SetActive(true);
+        //debbugField.SetActive(true);
         test = iPAdress.text;
+        waitingForothterPlayers_State = false;
     }
 
     public void OnLeftButtonClick()
@@ -229,8 +312,9 @@ public class NetworkClientUI : NetworkBehaviour
         BigButton.SetActive(true);
         toggleGroup.SetActive(false);
         Debug.Log(iPAdress.text);
-        debbugField.SetActive(true);
+        //debbugField.SetActive(true);
         test = iPAdress.text;
+        waitingForothterPlayers_State = false;
     }
 
     public void OnRightButtonClick()
@@ -242,7 +326,8 @@ public class NetworkClientUI : NetworkBehaviour
         BigButton.SetActive(true);
         toggleGroup.SetActive(false);
         Debug.Log(iPAdress.text);
-        debbugField.SetActive(true);
+       // debbugField.SetActive(true);
         test = iPAdress.text;
+        waitingForothterPlayers_State = false;
     }
 }
