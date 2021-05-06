@@ -8,7 +8,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/ClientScene.unity
     guid: c878ed3951c610646b13742f79992af2
-  - enabled: 1
-    path: Assets/LevelOne_host.unity
-    guid: 166b94e3879fdc14fb583cba13334e69
   m_configObjects: {}

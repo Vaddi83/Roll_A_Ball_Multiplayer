@@ -33,7 +33,7 @@ public class NetworkServerUI : NetworkBehaviour
     static public bool player4Right;
 
     bool waitingForotherPlayers_State = true;
-
+    public static NetworkServerUI instance;
 
     [SyncVar]
     public int countClients;
@@ -44,11 +44,23 @@ public class NetworkServerUI : NetworkBehaviour
         GUI.Label(new Rect(20, Screen.height - 20, 100, 20), "Connected:" + NetworkServer.connections.Count);
         GUI.Label(new Rect(20, Screen.height - 35, 100, 20), "Status:" + NetworkServer.active);
     }
-    
+
     // Use this for initialization
-    void Start()
+    void Awake()
     {
+        if (instance != null)
+        { Destroy(gameObject); }
+        else
+        {
+
+            instance = this;
+
+        }
         DontDestroyOnLoad(this.gameObject);
+    }
+        void Start()
+    {
+        
 
         NetworkServer.useWebSockets=true;
         NetworkServer.Listen(9997);
@@ -118,7 +130,12 @@ public class NetworkServerUI : NetworkBehaviour
         msg.value = waitingForotherPlayers_State.ToString();
         NetworkServer.SendToAll(554, msg);
     }
-        private void ServerReceivePlayerMessage(NetworkMessage message)
+        
+    
+    
+    
+    
+    private void ServerReceivePlayerMessage(NetworkMessage message)
     {
         StringMessage msg = new StringMessage();
     msg.value = message.ReadMessage<StringMessage>().value;
@@ -148,8 +165,25 @@ public class NetworkServerUI : NetworkBehaviour
 if (player == 2)
 {
     
-    direction2 = infos[1];
-}
+    direction2 = infos[0];
+            if (direction2 == "Up")
+            {
+                player2Up = true;
+                
+            }
+            if (direction2 == "Down")
+            {
+                player2Down = true;
+                
+            }
+            if (direction2 == "Left")
+            { player2Left = true; }
+            if (direction2 == "Right")
+            { player2Right = true; }
+
+
+        }
+    
 if (player == 3)
 {
     

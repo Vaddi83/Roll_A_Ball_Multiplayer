@@ -73,7 +73,11 @@ public class NetworkClientUI : NetworkBehaviour
         stillWaiting = msg.value.ToString();
 
     }
-        private void ClientReceiveMessage(NetworkMessage message)
+        
+    
+    
+    
+    private void ClientReceiveMessage(NetworkMessage message)
     {
         StringMessage msg = new StringMessage();
         msg.value = message.ReadMessage<StringMessage>().value;
@@ -163,7 +167,7 @@ public class NetworkClientUI : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        debbugField.text = stillWaiting;
+        //debbugField.text = stillWaiting;
         if(stillWaiting=="False")
         {
             sorryToLate.SetActive(true);
@@ -188,8 +192,8 @@ public class NetworkClientUI : NetworkBehaviour
 
         }
 
-        if (waitingForothterPlayers_State)
-        {
+      //  if (waitingForothterPlayers_State)
+        //{
 
             if (!player1Up && playernumber == 1)
             {
@@ -211,8 +215,9 @@ public class NetworkClientUI : NetworkBehaviour
             }
             if (!player1Right && playernumber == 1)
             {
-                //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
-                RightButton.SetActive(true);
+            //debbugField.GetComponent<Text>().text = playerAndDirection + "Test"; // countClients.text = client.allClients.ToString();
+            debbugField.text = playerAndDirection;    
+            RightButton.SetActive(true);
 
             }
             if (!player2Up && playernumber == 2)
@@ -241,7 +246,7 @@ public class NetworkClientUI : NetworkBehaviour
             }
         }
 
-    }
+  //  }
     public void OnUpButtonClick()
     {
         BigButton.GetComponent<joybutton>().direction = "Up";
@@ -270,6 +275,7 @@ public class NetworkClientUI : NetworkBehaviour
         RightButton.SetActive(false);
         DownButton.SetActive(false);
         UpButton.SetActive(false);
+
         SendAskForGameState();
     }
     public void OnToggleClick3()
